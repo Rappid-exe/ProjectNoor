@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "366236677185",
+    "project_id": "medipal-6dbde",
+    "storage_bucket": "medipal-6dbde.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:366236677185:android:b0856ed946710d661342c0",
+        "android_client_info": {
+          "package_name": "com.example.noor"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCNXUBX0J5ZibG9qC9aTFYGP3SjIAQfzW4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
