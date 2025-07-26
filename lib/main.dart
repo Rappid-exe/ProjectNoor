@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:noor/theme/app_theme.dart';
-import 'package:noor/views/student/student_dashboard_screen.dart';
+import 'package:noor/views/chat/model_check_wrapper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
       title: 'Noor',
       theme: AppTheme.lightTheme,
       debugShowCheckedModeBanner: false,
-      home: const StudentDashboardScreen(),
+      home: const ModelCheckWrapper(),
     );
   }
 }

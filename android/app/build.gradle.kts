@@ -19,6 +19,10 @@ android {
         jvmTarget = JavaVersion.VERSION_11.toString()
     }
 
+    aaptOptions {
+        noCompress("task")  // Don't compress .task files
+    }
+
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.noor"
@@ -68,8 +72,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 
     // MediaPipe for Gemma 3n (using the .task file)
-    implementation("com.google.mediapipe:tasks-genai:0.10.14")
-    
+    implementation("com.google.mediapipe:tasks-genai:0.10.24")
+
     // TensorFlow Lite (backup)
     implementation("org.tensorflow:tensorflow-lite:2.16.1")
     implementation("org.tensorflow:tensorflow-lite-gpu:2.16.1")
