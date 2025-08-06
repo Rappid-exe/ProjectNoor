@@ -1,5 +1,8 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
-import '../../services/gemma_ai_service.dart';
+import 'package:image_picker/image_picker.dart';
+import '../../services/gemma_native_service.dart';
 
 class SimpleChatScreen extends StatefulWidget {
   const SimpleChatScreen({Key? key}) : super(key: key);
@@ -13,12 +16,17 @@ class _SimpleChatScreenState extends State<SimpleChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final List<ChatMessage> _messages = [];
   bool _isLoading = false;
+  Uint8List? _selectedImageBytes;
 
   @override
   void initState() {
     super.initState();
+    _addWelcomeMessage();
+  }
+
+  void _addWelcomeMessage() {
     _addMessage(ChatMessage(
-      text: "Hello! I'm your AI tutor. How can I help you learn today?",
+      text: "Hello! I'm your AI tutor in SPEED MODE! 🚀 Ask short, specific questions for lightning-fast responses. Ready to learn?",
       isUser: false,
       timestamp: DateTime.now(),
     ));
@@ -45,47 +53,70 @@ class _SimpleChatScreenState extends State<SimpleChatScreen> {
 
   Future<void> _sendMessage() async {
     final text = _textController.text.trim();
-    if (text.isEmpty) return;
+    if (text.isEmpty && _selectedImageBytes == null) return;
+
+    // Performance monitoring
+    final startTime = DateTime.now();
 
     // Add user message to UI immediately
     _addMessage(ChatMessage(
       text: text,
       isUser: true,
       timestamp: DateTime.now(),
+      imageBytes: _selectedImageBytes,
     ));
 
     _textController.clear();
     setState(() {
       _isLoading = true;
+      _selectedImageBytes = null;
     });
 
-    final service = GemmaAiService.instance;
+    final service = GemmaNativeService.instance;
 
     try {
-      // DEBUG: Let's see what's actually happening
-      final debugInfo = service.getDebugInfo();
-      print('🔍 DEBUG: Service state = $debugInfo');
+      print('🔍 DEBUG: Using Native Gemma Service');
       
-      // Check if the service is ready. If not, try to re-initialize it.
-      if (!service.isReady) {
-        print('🤖 AI Service not ready. Attempting to re-initialize...');
-        final bool success = await service.initialize();
+      // Initialize model if not already done
+      if (!service.isInitialized) {
+        _updateLastMessage('Initializing AI model...');
+        final success = await service.initializeModel();
         if (!success) {
-          // Throw an exception that will be caught by the catch block
-          throw Exception("Failed to re-initialize AI service. Please restart the app.");
+          throw Exception('Failed to initialize AI model');
         }
-        print('✅ AI Service re-initialized successfully.');
       }
-
-      // Now that we are sure the service is ready, get the response.
-      print('🔍 CHAT DEBUG: About to call service.sendMessageSync...');
-      final response = await service.sendMessageSync(text);
-      print('🔍 CHAT DEBUG: Got response from service: ${response.length > 100 ? response.substring(0, 100) + "..." : response}');
+      
+      // Add placeholder message immediately for better UX
       _addMessage(ChatMessage(
-        text: response,
+        text: 'Thinking...',
         isUser: false,
         timestamp: DateTime.now(),
       ));
+
+      // Send the message using streaming with MAXIMUM SPEED parameters
+      print('🔍 CHAT DEBUG: About to call native service.generateTextStream...');
+      final stream = service.generateTextStream(
+        text,
+        maxTokens: 80, // Very short responses for maximum speed
+        temperature: 0.4, // Very focused for faster generation
+      );
+      
+      String fullResponse = '';
+      await for (final token in stream) {
+        // Flutter Gemma returns incremental tokens, accumulate them
+        fullResponse += token;
+        _updateLastMessage(fullResponse);
+        
+        // NO DELAY - Maximum speed mode!
+      }
+      
+      // Log performance metrics with speed analysis
+      final endTime = DateTime.now();
+      final duration = endTime.difference(startTime);
+      final seconds = duration.inMilliseconds / 1000;
+      final tokensPerSecond = fullResponse.split(' ').length / seconds;
+      print('🚀 SPEED MODE: ${duration.inMilliseconds}ms (${tokensPerSecond.toStringAsFixed(1)} tokens/sec)');
+      
     } catch (e) {
       _addMessage(ChatMessage(
         text: "Sorry, an error occurred: ${e.toString()}",
@@ -95,6 +126,32 @@ class _SimpleChatScreenState extends State<SimpleChatScreen> {
     } finally {
       setState(() {
         _isLoading = false;
+      });
+    }
+  }
+
+  void _updateLastMessage(String text) {
+    setState(() {
+      if (_messages.isNotEmpty && !_messages.last.isUser) {
+        _messages.last.text = text;
+      } else {
+        _addMessage(ChatMessage(
+          text: text,
+          isUser: false,
+          timestamp: DateTime.now(),
+        ));
+      }
+    });
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      final bytes = await pickedFile.readAsBytes();
+      setState(() {
+        _selectedImageBytes = bytes;
       });
     }
   }
@@ -118,25 +175,28 @@ class _SimpleChatScreenState extends State<SimpleChatScreen> {
                 children: [
                   Icon(Icons.smart_toy, color: Colors.indigo.shade700, size: 28),
                   const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'AI Tutor',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.indigo.shade800,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'AI Tutor',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.indigo.shade800,
+                          ),
                         ),
-                      ),
-                      Text(
-                        'Your personal learning assistant',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.indigo.shade600,
+                        Text(
+                          '🚀 SPEED MODE • Ultra-short responses for maximum performance',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.indigo.shade600,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -191,41 +251,76 @@ class _SimpleChatScreenState extends State<SimpleChatScreen> {
                   top: BorderSide(color: Colors.grey.shade200),
                 ),
               ),
-              child: Row(
+              child: Column(
                 children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _textController,
-                      decoration: InputDecoration(
-                        hintText: 'Ask me anything about your studies...',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                          borderSide: BorderSide(color: Colors.grey.shade300),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                          borderSide: BorderSide(color: Colors.grey.shade300),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                          borderSide: BorderSide(color: Colors.indigo.shade400),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
+                  if (_selectedImageBytes != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Stack(
+                        alignment: Alignment.topRight,
+                        children: [
+                          Container(
+                            height: 100,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              image: DecorationImage(
+                                image: MemoryImage(_selectedImageBytes!),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close, color: Colors.white),
+                            onPressed: () {
+                              setState(() {
+                                _selectedImageBytes = null;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  Row(
+                    children: [
+                       IconButton(
+                        icon: Icon(Icons.image, color: Colors.indigo.shade400),
+                        onPressed: _pickImage,
+                      ),
+                      Expanded(
+                        child: TextField(
+                          controller: _textController,
+                          decoration: InputDecoration(
+                            hintText: 'Ask me anything about your studies...',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(24),
+                              borderSide: BorderSide(color: Colors.grey.shade300),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(24),
+                              borderSide: BorderSide(color: Colors.grey.shade300),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(24),
+                              borderSide: BorderSide(color: Colors.indigo.shade400),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                          ),
+                          maxLines: null,
+                          textInputAction: TextInputAction.send,
+                          onSubmitted: (_) => _sendMessage(),
                         ),
                       ),
-                      maxLines: null,
-                      textInputAction: TextInputAction.send,
-                      onSubmitted: (_) => _sendMessage(),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  FloatingActionButton(
-                    onPressed: _isLoading ? null : _sendMessage,
-                    backgroundColor: Colors.indigo.shade600,
-                    mini: true,
-                    child: const Icon(Icons.send, color: Colors.white),
+                      const SizedBox(width: 8),
+                      FloatingActionButton(
+                        onPressed: _isLoading ? null : _sendMessage,
+                        backgroundColor: Colors.indigo.shade600,
+                        mini: true,
+                        child: const Icon(Icons.send, color: Colors.white),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -265,12 +360,31 @@ class _SimpleChatScreenState extends State<SimpleChatScreen> {
                     : Colors.grey.shade100,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Text(
-                message.text,
-                style: TextStyle(
-                  color: message.isUser ? Colors.white : Colors.black87,
-                  fontSize: 16,
-                ),
+              child: Column(
+                 crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (message.imageBytes != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.memory(
+                          message.imageBytes!,
+                          height: 150,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  if (message.text.isNotEmpty)
+                    Text(
+                      message.text,
+                      style: TextStyle(
+                        color: message.isUser ? Colors.white : Colors.black87,
+                        fontSize: 16,
+                      ),
+                    ),
+                ],
               ),
             ),
           ),
@@ -300,13 +414,17 @@ class _SimpleChatScreenState extends State<SimpleChatScreen> {
 }
 
 class ChatMessage {
-  final String text;
+  String text;
   final bool isUser;
   final DateTime timestamp;
+  final Uint8List? imageBytes;
+  final bool isError;
 
   ChatMessage({
     required this.text,
     required this.isUser,
     required this.timestamp,
+    this.imageBytes,
+    this.isError = false,
   });
 }

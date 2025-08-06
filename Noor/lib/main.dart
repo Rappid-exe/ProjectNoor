@@ -1,12 +1,47 @@
 import 'package:flutter/material.dart';
-import 'services/gemma_ai_service.dart';
-import 'views/student/student_dashboard_screen.dart';
+import 'views/student/model_check_wrapper.dart';
+import 'services/gemma_native_service.dart';
+import 'services/model_download_service.dart';
 
-void main() {
-  runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Gemma model on app startup for faster interactions
+  _initializeGemmaModel();
+  
+  runApp(const MyApp());
+}
+
+/// Initialize Gemma model in the background on app startup
+void _initializeGemmaModel() async {
+  try {
+    print('🚀 Starting Gemma model initialization on app startup...');
+    
+    // Check if model is available
+    final isModelReady = await ModelDownloadService.isModelReady();
+    if (!isModelReady) {
+      print('📥 Model not downloaded yet - will initialize when available');
+      return;
+    }
+    
+    // Initialize the model service
+    final gemmaService = GemmaNativeService.instance;
+    final initialized = await gemmaService.initializeModel();
+    
+    if (initialized) {
+      print('✅ Gemma model pre-initialized successfully! Interactions will be faster.');
+    } else {
+      print('⚠️ Model initialization completed with fallback mode');
+    }
+  } catch (e) {
+    print('⚠️ Background model initialization failed: $e');
+    // Don't block app startup - model will initialize on first use
+  }
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -15,118 +50,12 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         useMaterial3: true,
       ),
-      home: const AppInitializer(),
+      debugShowCheckedModeBanner: false,
+      home: const ModelCheckWrapper(),
     );
   }
 }
 
-class AppInitializer extends StatefulWidget {
-  const AppInitializer({Key? key}) : super(key: key);
 
-  @override
-  State<AppInitializer> createState() => _AppInitializerState();
-}
-
-class _AppInitializerState extends State<AppInitializer> {
-  bool _isInitialized = false;
-  String _status = 'Initializing Noor...';
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeApp();
-  }
-
-  Future<void> _initializeApp() async {
-    try {
-      setState(() {
-        _status = 'Starting educational platform...';
-      });
-
-      // Initialize the Gemma AI service
-      final service = GemmaAiService.instance;
-      await service.initialize();
-
-      setState(() {
-        _status = 'Ready!';
-        _isInitialized = true;
-      });
-
-      // Navigate to main app after a brief delay
-      await Future.delayed(const Duration(milliseconds: 500));
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => const StudentDashboardScreen(),
-          ),
-        );
-      }
-    } catch (e) {
-      setState(() {
-        _status = 'Error: $e';
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.indigo.shade100, Colors.white],
-          ),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.school,
-                size: 80,
-                color: Colors.indigo.shade700,
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Noor',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.indigo.shade800,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Educational Platform for Afghan Women',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.indigo.shade600,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 40),
-              if (!_isInitialized) ...[
-                CircularProgressIndicator(
-                  color: Colors.indigo.shade600,
-                ),
-                const SizedBox(height: 16),
-              ],
-              Text(
-                _status,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.indigo.shade700,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 

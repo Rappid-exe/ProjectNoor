@@ -38,7 +38,7 @@ class SimpleProfileScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 
                 Text(
-                  'Educational Platform for Afghan Women',
+                  'Educational Platform for Students in Low Connectivity Areas',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.indigo.shade600,
@@ -52,7 +52,7 @@ class SimpleProfileScreen extends StatelessWidget {
                 _buildInfoCard(
                   icon: Icons.school,
                   title: 'About Noor',
-                  description: 'Noor is an educational platform designed to support Afghan women in their learning journey. Our AI-powered tutor provides personalized assistance across various subjects.',
+                  description: 'Noor is an educational platform designed to support students in low connectivity areas. Our AI-powered tutor provides personalized assistance across various subjects.',
                 ),
                 
                 const SizedBox(height: 20),
@@ -81,35 +81,35 @@ class SimpleProfileScreen extends StatelessWidget {
                 
                 const SizedBox(height: 40),
                 
-                // App Status
+                // Platform Features
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.green.shade50,
+                    color: Colors.blue.shade50,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.green.shade200),
+                    border: Border.all(color: Colors.blue.shade200),
                   ),
                   child: Column(
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.check_circle, color: Colors.green.shade700),
+                          Icon(Icons.star, color: Colors.blue.shade700),
                           const SizedBox(width: 8),
                           Text(
-                            'Platform Status',
+                            'Platform Features',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Colors.green.shade700,
+                              color: Colors.blue.shade700,
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 12),
-                      _buildStatusItem('✅', 'Core App', 'Ready'),
-                      _buildStatusItem('✅', 'Mock AI Service', 'Active'),
-                      _buildStatusItem('✅', 'Course Management', 'Available'),
-                      _buildStatusItem('🔧', 'Real AI Integration', 'In Progress'),
+                      _buildStatusItem('🤖', 'AI Chat Tutor', 'Real-time conversations with Gemma 3'),
+                      _buildStatusItem('📚', 'Interactive Courses', 'Flashcards and structured learning'),
+                      _buildStatusItem('📸', 'OCR Scanner', 'Extract text from images with AI'),
+                      _buildStatusItem('🌐', 'Offline Ready', 'Works without internet connection'),
                     ],
                   ),
                 ),
@@ -126,7 +126,7 @@ class SimpleProfileScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Supporting education and empowerment',
+                  'Empowering education for all students',
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.grey.shade600,
@@ -153,7 +153,7 @@ class SimpleProfileScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

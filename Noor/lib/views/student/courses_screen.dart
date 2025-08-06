@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:noor/models/course.dart';
-import 'package:noor/services/course_service.dart';
+import '../../services/simple_course_service.dart';
+import 'subject_detail_screen.dart';
 
 class CoursesScreen extends StatefulWidget {
   const CoursesScreen({super.key});
@@ -11,7 +10,7 @@ class CoursesScreen extends StatefulWidget {
 }
 
 class _CoursesScreenState extends State<CoursesScreen> {
-  final CourseService _courseService = CourseService();
+  final SimpleCourseService _courseService = SimpleCourseService();
 
   @override
   Widget build(BuildContext context) {
@@ -22,44 +21,60 @@ class _CoursesScreenState extends State<CoursesScreen> {
           child: Column(
             children: [
               const SizedBox(height: 20),
-              // Modern centered title without AppBar
+              // Modern centered title
               Text(
-                'My Courses',
+                'Learning Subjects',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 8),
+              Text(
+                'Choose a subject to start learning with AI-powered flash cards',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.grey.shade600,
+                    ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
               
-              // Course list
+              // Subjects grid
               Expanded(
-                child: StreamBuilder<List<Course>>(
-                  stream: _courseService.getUserCourses(),
+                child: FutureBuilder<List<Map<String, dynamic>>>(
+                  future: _courseService.getSubjects(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
+                      return const Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CircularProgressIndicator(),
+                            SizedBox(height: 16),
+                            Text('Loading subjects...'),
+                          ],
+                        ),
+                      );
                     }
                     
                     if (snapshot.hasError) {
                       return Center(
                         child: Text(
-                          'Error loading courses: ${snapshot.error}',
+                          'Error loading subjects: ${snapshot.error}',
                           style: TextStyle(color: Colors.red.shade700),
                         ),
                       );
                     }
                     
-                    final courses = snapshot.data ?? [];
-                    
-                    if (courses.isEmpty) {
-                      return _buildEmptyState();
-                    }
+                    final subjects = snapshot.data ?? [];
                     
                     return ListView.builder(
-                      itemCount: courses.length,
+                      itemCount: subjects.length,
                       itemBuilder: (context, index) {
-                        return _buildCourseCard(courses[index]);
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16.0),
+                          child: _buildSubjectCard(subjects[index]),
+                        );
                       },
                     );
                   },
@@ -72,178 +87,148 @@ class _CoursesScreenState extends State<CoursesScreen> {
     );
   }
   
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.book_outlined,
-            size: 80,
-            color: Colors.grey.shade400,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'No Courses',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey.shade700,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'You are not enrolled in any courses yet',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey.shade600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-  
-  Widget _buildCourseCard(Course course) {
-    final progressPercentage = course.getProgressPercentage();
-    final dateFormat = DateFormat('dd MMM yyyy');
+  Widget _buildSubjectCard(Map<String, dynamic> subject) {
+    final hasCompleted = subject['hasCompletedCourses'] as bool;
     
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      elevation: 2,
+      elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              course.name,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                _buildInfoChip(
-                  Icons.category, 
-                  course.category,
-                  Colors.blue.shade100,
-                ),
-                const SizedBox(width: 8),
-                _buildInfoChip(
-                  Icons.schedule, 
-                  course.duration,
-                  Colors.purple.shade100,
-                ),
+      child: InkWell(
+        onTap: () => _navigateToSubject(subject['name']),
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                _getSubjectColor(subject['name']).withOpacity(0.1),
+                _getSubjectColor(subject['name']).withOpacity(0.05),
               ],
             ),
-            const SizedBox(height: 16),
-            Text(
-              'Description: ${course.description}',
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 8),
-            if (course.objectives.isNotEmpty)
-              Text(
-                'Objectives: ${course.objectives}',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey.shade700,
-                ),
-              ),
-            const SizedBox(height: 8),
-            Text(
-              'Start date: ${dateFormat.format(course.startDate)}',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey.shade700,
-              ),
-            ),
-            if (course.endDate != null)
-              Text(
-                'End date: ${dateFormat.format(course.endDate!)}',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey.shade700,
-                ),
-              ),
-            const SizedBox(height: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Progress',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.grey.shade700,
+          ),
+          child: Row(
+            children: [
+              // Subject icon with completion indicator
+              Stack(
+                children: [
+                  Container(
+                    width: 70,
+                    height: 70,
+                    decoration: BoxDecoration(
+                      color: _getSubjectColor(subject['name']).withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(35),
+                    ),
+                    child: Center(
+                      child: Text(
+                        subject['icon'],
+                        style: const TextStyle(fontSize: 32),
                       ),
                     ),
+                  ),
+                  if (hasCompleted)
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: const Icon(
+                          Icons.check,
+                          color: Colors.white,
+                          size: 14,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(width: 20),
+              
+              // Subject details
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Subject name
                     Text(
-                      '${(progressPercentage * 100).toInt()}%',
+                      subject['name'],
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: _getSubjectColor(subject['name']),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    
+                    // Subject description
+                    Text(
+                      subject['description'],
                       style: TextStyle(
                         fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: _getProgressColor(progressPercentage),
+                        color: Colors.grey.shade600,
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: LinearProgressIndicator(
-                    value: progressPercentage,
-                    backgroundColor: Colors.grey.shade200,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      _getProgressColor(progressPercentage),
-                    ),
-                    minHeight: 8,
+              ),
+              
+              const SizedBox(width: 16),
+              
+              // Start button
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                decoration: BoxDecoration(
+                  color: _getSubjectColor(subject['name']),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  hasCompleted ? 'Continue' : 'Start',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
-  
-  Widget _buildInfoChip(IconData icon, String label, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 16, color: Colors.black87),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
+
+  Color _getSubjectColor(String subject) {
+    switch (subject) {
+      case 'Mathematics':
+        return Colors.blue;
+      case 'Science':
+        return Colors.green;
+      case 'English':
+        return Colors.purple;
+      case 'Hygiene & Care':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
   }
 
-  Color _getProgressColor(double progress) {
-    if (progress < 0.3) return Colors.red;
-    if (progress < 0.7) return Colors.orange;
-    return Colors.green;
+  void _navigateToSubject(String subject) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SubjectDetailScreen(subject: subject),
+      ),
+    );
   }
 }
