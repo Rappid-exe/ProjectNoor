@@ -1,6 +1,6 @@
 # Project Noor 🌟
 
-**Educational Platform for Afghan Women with On-Device AI Integration**
+**Educational Platform for Student In Low connectivity Areas with On-Device AI Integration**
 
 ## 🎯 Project Overview
 
