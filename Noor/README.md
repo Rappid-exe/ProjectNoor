@@ -3,12 +3,12 @@
 > **Empowering Afghan Women Through Accessible, Offline-First Education**
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.8.1-blue.svg)](https://flutter.dev/)
-[![Gemma 3n](https://img.shields.io/badge/Gemma%203n-Multimodal%20AI-green.svg)](https://ai.google.dev/gemma)
+[![Gemma 3N 2B](https://img.shields.io/badge/Gemma%203N%202B-Multimodal%20AI-green.svg)](https://ai.google.dev/gemma)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## 🎯 Project Vision
 
-**Noor** (meaning "light" in Persian/Dari) is an innovative educational platform designed specifically for Afghan women who face barriers to traditional education. Built for the **Google Gemma 3n Impact Challenge**, Noor leverages cutting-edge on-device AI to provide accessible, private, and offline-first learning experiences.
+**Noor** (meaning "light" in Persian/Dari) is an innovative educational platform designed specifically for Afghan women who face barriers to traditional education. Built for the **Google Gemma 3N Impact Challenge**, Noor leverages the cutting-edge Gemma 3N 2B model for on-device AI to provide accessible, private, and offline-first learning experiences.
 
 ### 🌍 The Problem We're Solving
 
@@ -22,7 +22,7 @@ In Afghanistan, millions of women and girls are denied access to formal educatio
 ## ✨ Key Features
 
 ### 🤖 **AI-Powered Learning Assistant**
-- **Local Gemma 3n Integration**: Private, on-device AI conversations
+- **Local Gemma 3N 2B Integration**: Private, on-device AI conversations
 - **Multilingual Support**: Supports Dari, Pashto, and English
 - **Contextual Learning**: AI adapts to individual learning pace and style
 
@@ -32,7 +32,7 @@ In Afghanistan, millions of women and girls are denied access to formal educatio
 - **Offline Course Library**: Pre-loaded educational content
 
 ### 📸 **Document Scanner & OCR**
-- **Gemma 3n Vision**: Advanced text extraction from images
+- **Gemma 3N 2B Vision**: Advanced text extraction from images
 - **Handwriting Recognition**: Digitize handwritten notes
 - **Smart Organization**: AI categorizes and tags scanned content
 - **Offline Processing**: No internet required for text extraction
@@ -49,10 +49,10 @@ In Afghanistan, millions of women and girls are denied access to formal educatio
 
 ## 🚀 Technical Innovation
 
-### **Gemma 3n Integration**
-Noor showcases the full potential of Google's Gemma 3n model:
+### **Gemma 3N 2B Integration**
+Noor showcases the full potential of Google's Gemma 3N 2B model:
 
-- **On-Device Performance**: Runs efficiently on mobile devices
+- **On-Device Performance**: Runs efficiently on mobile devices with 2B parameters
 - **Multimodal Capabilities**: Processes text, images, and voice
 - **Privacy-First**: No data leaves the device
 - **Offline-Ready**: Full functionality without internet
@@ -60,7 +60,7 @@ Noor showcases the full potential of Google's Gemma 3n model:
 ### **Architecture Highlights**
 ```
 📱 Flutter Frontend
-├── 🤖 Gemma 3n Native Service
+├── 🤖 Gemma 3N 2B Native Service
 ├── 📸 OCR & Vision Processing
 ├── 📚 Course Content Generator
 ├── 💾 Local Data Storage
@@ -102,9 +102,9 @@ flutter run -d chrome   # For Web (limited features)
 ```
 
 ### Model Setup
-The app automatically downloads and configures the Gemma 3n model on first launch:
-- **Model**: `gemma-3n-E2B-it-int4.task`
-- **Size**: ~2.5GB (optimized with int4 quantization)
+The app automatically downloads and configures the Gemma 3N 2B model on first launch:
+- **Model**: `gemma-3n-2b-it-int4.task`
+- **Size**: ~1.5GB (2B parameters with int4 quantization)
 - **Storage**: Local device storage for privacy
 
 ## 🎥 Video Demo
@@ -152,9 +152,9 @@ lib/
 
 ## 🔧 Technical Deep Dive
 
-### **Gemma 3n Features Utilized**
-1. **Per-Layer Embeddings (PLE)**: Efficient memory usage
-2. **Mix'n'Match Capability**: Dynamic model sizing
+### **Gemma 3N 2B Features Utilized**
+1. **Per-Layer Embeddings (PLE)**: Efficient memory usage for 2B parameters
+2. **Compact Architecture**: Optimized 2B model for mobile devices
 3. **Multimodal Understanding**: Text, image, and audio processing
 4. **Multilingual Support**: Native support for multiple languages
 
@@ -193,7 +193,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- **Google AI**: For the incredible Gemma 3n model and Impact Challenge
+- **Google AI**: For the incredible Gemma 3N 2B model and Impact Challenge
 - **Flutter Team**: For the amazing cross-platform framework
 - **Afghan Women**: The inspiration and driving force behind this project
 - **Open Source Community**: For the tools and libraries that make this possible
@@ -206,6 +206,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Built with ❤️ for the Google Gemma 3n Impact Challenge**
+**Built with ❤️ for the Google Gemma 3N Impact Challenge**
 
 *Noor represents more than just an app—it's a beacon of hope for educational equity and women's empowerment. Together, we can light the path to a more inclusive future.*
