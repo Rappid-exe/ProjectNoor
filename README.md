@@ -18,7 +18,7 @@ Project Noor is a Flutter-based educational platform designed to empower Afghan 
 
 - **Framework**: Flutter (Cross-platform mobile development)
 - **AI Engine**: `flutter_gemma` package with Google AI Edge
-- **Model**: Gemma 3 1B IT (Instruction-Tuned) with int4 quantization
+- **Model**: Gemma 3N 2B IT (Instruction-Tuned) with int4 quantization
 - **Backend**: GPU acceleration with OpenCL/ML_DRIFT_CL delegate
 - **Platforms**: Android (Primary), iOS, Web support
 
