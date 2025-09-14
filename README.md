@@ -1,6 +1,6 @@
 # Project Noor 🌟
 
-**Educational Platform for Afghan Women with On-Device AI Integration**
+**Educational Platform for Student In Low connectivity Areas with On-Device AI Integration**
 
 ## 🎯 Project Overview
 
@@ -8,7 +8,7 @@ Project Noor is a Flutter-based educational platform designed to empower Afghan 
 
 ## 🤖 AI Integration Achievement
 
-**✅ Successfully Integrated Gemma 3 1B Model**
+**✅ Successfully Integrated Gemma 3N Model**
 - **On-device inference** with GPU acceleration
 - **Real-time chat capabilities** with conversational context
 - **Offline functionality** - no internet required after model download
@@ -18,13 +18,13 @@ Project Noor is a Flutter-based educational platform designed to empower Afghan 
 
 - **Framework**: Flutter (Cross-platform mobile development)
 - **AI Engine**: `flutter_gemma` package with Google AI Edge
-- **Model**: Gemma 3 1B IT (Instruction-Tuned) with int4 quantization
+- **Model**: Gemma 3N 2B IT (Instruction-Tuned) with int4 quantization
 - **Backend**: GPU acceleration with OpenCL/ML_DRIFT_CL delegate
 - **Platforms**: Android (Primary), iOS, Web support
 
 ## 🚀 Key Features
 
-### Current Implementation (Gemma 3 1B)
+### Current Implementation (Gemma 3N)
 - ✅ **Text-based AI chat** with natural conversation flow
 - ✅ **GPU-optimized inference** for fast response times
 - ✅ **Automatic chat session management** with context preservation
@@ -112,7 +112,7 @@ This project is being developed for the **Google Gemma 3n Impact Challenge**, fo
 
 ## 📈 Performance Metrics
 
-### Current Performance (Gemma 3 1B)
+### Current Performance (Gemma 3N)
 - **Initialization Time**: ~5-10 seconds on mid-range devices
 - **Response Time**: 1-3 seconds for typical queries
 - **Memory Usage**: ~2-3GB during active inference
